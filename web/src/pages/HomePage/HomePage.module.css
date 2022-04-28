@@ -1,0 +1,9 @@
+.homeImage {
+  width: 600px;
+  height: 600px;
+  margin: 100px auto 0;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 50%;
+}
