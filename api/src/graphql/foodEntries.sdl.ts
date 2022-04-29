@@ -16,14 +16,14 @@ export const schema = gql`
     userId: Int!
     name: String!
     calories: Int!
-    dateTaken: DateTime!
+    dateTaken: DateTime
   }
 
   input UpdateFoodEntryInput {
     userId: Int
     name: String
     calories: Int
-    dateTaken: DateTime
+    dateTaken: DateTime!
   }
 
   type Mutation {

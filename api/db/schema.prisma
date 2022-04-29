@@ -17,21 +17,23 @@ enum Role {
 // to create migrations for them and apply to your dev DB.
 // TODO: Please remove the following example:
 model User {
-  id                  Int       @id @default(autoincrement())
-  email               String    @unique
-  caloriesLimit       Int       @default(2100)
-  name                String?
-  role                Role?
+  id                  Int         @id @default(autoincrement())
+  caloriesLimit       Int         @default(2100)
+  email               String      @unique
+  name                String
+  roles               Role        @default(USER)
   hashedPassword      String
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
+  FoodEntry           FoodEntry[]
 }
 
 model FoodEntry {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
   name      String
   calories  Int
-  dateTaken DateTime @default(now())
+  dateTaken DateTime? @default(now())
 }

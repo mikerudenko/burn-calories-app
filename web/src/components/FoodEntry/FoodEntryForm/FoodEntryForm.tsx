@@ -1,14 +1,17 @@
 import {
+  FieldError,
   Form,
   FormError,
-  FieldError,
   Label,
   NumberField,
-  TextField,
   Submit,
 } from '@redwoodjs/forms'
+import { useState } from 'react'
+import { FoodAutocomplete } from 'src/components/FoodAutocomplete/FoodAutocomplete'
 
 const FoodEntryForm = (props) => {
+  const [foodItemValue, setFoodItemValue] = useState(null)
+
   const onSubmit = (data) => {
     props.onSave(data, props?.foodEntry?.id)
   }
@@ -23,22 +26,6 @@ const FoodEntryForm = (props) => {
           listClassName="rw-form-error-list"
         />
 
-        <Label
-          name="userId"
-          className="rw-label"
-          errorClassName="rw-label rw-label-error"
-        >
-          User id
-        </Label>
-
-        <NumberField
-          name="userId"
-          defaultValue={props.foodEntry?.userId}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
-        />
-
         <FieldError name="userId" className="rw-field-error" />
 
         <Label
@@ -49,15 +36,10 @@ const FoodEntryForm = (props) => {
           Name
         </Label>
 
-        <TextField
-          name="name"
-          defaultValue={props.foodEntry?.name}
-          className="rw-input"
-          errorClassName="rw-input rw-input-error"
-          validation={{ required: true }}
+        <FoodAutocomplete
+          value={foodItemValue.value}
+          setInputValue={setFoodItemValue}
         />
-
-        <FieldError name="name" className="rw-field-error" />
 
         <Label
           name="calories"

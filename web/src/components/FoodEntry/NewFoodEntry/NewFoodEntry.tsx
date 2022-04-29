@@ -2,6 +2,7 @@ import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 import { navigate, routes } from '@redwoodjs/router'
 import FoodEntryForm from 'src/components/FoodEntry/FoodEntryForm'
+import { useAuth } from '@redwoodjs/auth'
 
 const CREATE_FOOD_ENTRY_MUTATION = gql`
   mutation CreateFoodEntryMutation($input: CreateFoodEntryInput!) {
@@ -12,6 +13,10 @@ const CREATE_FOOD_ENTRY_MUTATION = gql`
 `
 
 const NewFoodEntry = () => {
+  const {
+    currentUser: { id },
+  } = useAuth()
+
   const [createFoodEntry, { loading, error }] = useMutation(
     CREATE_FOOD_ENTRY_MUTATION,
     {
@@ -26,7 +31,7 @@ const NewFoodEntry = () => {
   )
 
   const onSave = (input) => {
-    const castInput = Object.assign(input, { userId: parseInt(input.userId) })
+    const castInput = Object.assign(input, { userId: id })
     createFoodEntry({ variables: { input: castInput } })
   }
 

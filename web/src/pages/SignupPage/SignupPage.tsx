@@ -1,17 +1,16 @@
-import { Link, navigate, routes } from '@redwoodjs/router'
-import { useRef } from 'react'
+import { useAuth } from '@redwoodjs/auth'
 import {
+  FieldError,
   Form,
   Label,
-  TextField,
   PasswordField,
-  FieldError,
   Submit,
+  TextField,
 } from '@redwoodjs/forms'
-import { useAuth } from '@redwoodjs/auth'
+import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 const SignupPage = () => {
   const { isAuthenticated, signUp } = useAuth()
@@ -99,7 +98,9 @@ const SignupPage = () => {
                   <FieldError name="password" className="rw-field-error" />
 
                   <div className="rw-button-group">
-                    <Submit className="rw-button rw-button-blue">Sign Up</Submit>
+                    <Submit className="rw-button rw-button-blue">
+                      Sign Up
+                    </Submit>
                   </div>
                 </Form>
               </div>
