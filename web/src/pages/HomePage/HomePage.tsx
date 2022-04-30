@@ -8,8 +8,6 @@ import { useAuth } from '@redwoodjs/auth'
 const HomePage = () => {
   const { isAuthenticated, logOut } = useAuth()
 
-  console.log(isAuthenticated)
-
   return (
     <>
       <MetaTags title="Home" description="Home page" />

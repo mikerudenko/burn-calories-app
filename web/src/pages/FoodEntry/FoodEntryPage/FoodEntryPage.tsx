@@ -1,3 +1,4 @@
+import { useAuth } from '@redwoodjs/auth'
 import FoodEntryCell from 'src/components/FoodEntry/FoodEntryCell'
 
 type FoodEntryPageProps = {
@@ -5,7 +6,8 @@ type FoodEntryPageProps = {
 }
 
 const FoodEntryPage = ({ id }: FoodEntryPageProps) => {
-  return <FoodEntryCell id={id} />
+  const { currentUser } = useAuth()
+  return <FoodEntryCell id={id} userId={currentUser.id} />
 }
 
 export default FoodEntryPage

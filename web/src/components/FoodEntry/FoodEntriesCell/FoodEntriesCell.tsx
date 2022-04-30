@@ -5,9 +5,13 @@ import { Link, routes } from '@redwoodjs/router'
 
 import FoodEntries from 'src/components/FoodEntry/FoodEntries'
 
+type FoodEntriesCellProps = {
+  userId: number
+}
+
 export const QUERY = gql`
-  query FindFoodEntries {
-    foodEntries {
+  query FindFoodEntries($userId: Int!) {
+    foodEntries(userId: $userId) {
       id
       userId
       name
@@ -17,16 +21,20 @@ export const QUERY = gql`
   }
 `
 
+export const beforeQuery = ({ userId }: FoodEntriesCellProps) => {
+  return {
+    variables: { userId },
+    fetchPolicy: 'cache-and-network',
+  }
+}
+
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => {
   return (
     <div className="rw-text-center">
       {'No foodEntries yet. '}
-      <Link
-        to={routes.newFoodEntry()}
-        className="rw-link"
-      >
+      <Link to={routes.newFoodEntry()} className="rw-link">
         {'Create one?'}
       </Link>
     </div>

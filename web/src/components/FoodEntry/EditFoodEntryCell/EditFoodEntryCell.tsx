@@ -6,6 +6,7 @@ import { toast } from '@redwoodjs/web/toast'
 import { navigate, routes } from '@redwoodjs/router'
 
 import FoodEntryForm from 'src/components/FoodEntry/FoodEntryForm'
+import { useAuth } from '@redwoodjs/auth'
 
 export const QUERY = gql`
   query EditFoodEntryById($id: Int!) {
@@ -37,28 +38,43 @@ export const Failure = ({ error }: CellFailureProps) => (
 )
 
 export const Success = ({ foodEntry }: CellSuccessProps<EditFoodEntryById>) => {
-  const [updateFoodEntry, { loading, error }] = useMutation(UPDATE_FOOD_ENTRY_MUTATION, {
-    onCompleted: () => {
-      toast.success('FoodEntry updated')
-      navigate(routes.foodEntries())
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+  const {
+    currentUser: { id },
+  } = useAuth()
 
-  const onSave = (input, id) => {
-    const castInput = Object.assign(input, { userId: parseInt(input.userId), })
+  const [updateFoodEntry, { loading, error }] = useMutation(
+    UPDATE_FOOD_ENTRY_MUTATION,
+    {
+      onCompleted: () => {
+        toast.success('FoodEntry updated')
+        navigate(routes.foodEntries())
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    }
+  )
+
+  const onSave = (input) => {
+    const castInput = Object.assign(input, { userId: id })
+
     updateFoodEntry({ variables: { id, input: castInput } })
   }
 
   return (
     <div className="rw-segment">
       <header className="rw-segment-header">
-        <h2 className="rw-heading rw-heading-secondary">Edit FoodEntry {foodEntry.id}</h2>
+        <h2 className="rw-heading rw-heading-secondary">
+          Edit FoodEntry {foodEntry.id}
+        </h2>
       </header>
       <div className="rw-segment-main">
-        <FoodEntryForm foodEntry={foodEntry} onSave={onSave} error={error} loading={loading} />
+        <FoodEntryForm
+          foodEntry={foodEntry}
+          onSave={onSave}
+          error={error}
+          loading={loading}
+        />
       </div>
     </div>
   )

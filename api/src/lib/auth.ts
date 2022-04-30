@@ -21,7 +21,7 @@ import { db } from './db'
 export const getCurrentUser = async (session) => {
   return db.user.findUnique({
     where: { id: session.id },
-    select: { id: true },
+    select: { id: true, roles: true },
   })
 }
 
@@ -48,39 +48,17 @@ type AllowedRoles = string | string[] | undefined
  * @returns {boolean} - Returns true if the currentUser is logged in and assigned one of the given roles,
  * or when no roles are provided to check against. Otherwise returns false.
  */
-export const hasRole = (roles: AllowedRoles): boolean => {
+export const hasRole = async (roles: AllowedRoles) => {
   if (!isAuthenticated()) {
     return false
   }
 
-  const currentUserRoles = context.currentUser?.roles
+  const currentUser = await getCurrentUser(context.currentUser)
+  const currentUserRoles = currentUser?.roles
 
-  if (typeof roles === 'string') {
-    if (typeof currentUserRoles === 'string') {
-      // roles to check is a string, currentUser.roles is a string
-      return currentUserRoles === roles
-    } else if (Array.isArray(currentUserRoles)) {
-      // roles to check is a string, currentUser.roles is an array
-      return currentUserRoles?.some((allowedRole) => roles === allowedRole)
-    }
-  }
-
-  if (Array.isArray(roles)) {
-    if (Array.isArray(currentUserRoles)) {
-      // roles to check is an array, currentUser.roles is an array
-      return currentUserRoles?.some((allowedRole) =>
-        roles.includes(allowedRole)
-      )
-    } else if (typeof context.currentUser.roles === 'string') {
-      // roles to check is an array, currentUser.roles is a string
-      return roles.some(
-        (allowedRole) => context.currentUser?.roles === allowedRole
-      )
-    }
-  }
-
-  // roles not found
-  return false
+  return Array.isArray(roles)
+    ? roles.includes(currentUserRoles)
+    : roles === currentUserRoles
 }
 
 /**
@@ -97,12 +75,12 @@ export const hasRole = (roles: AllowedRoles): boolean => {
  *
  * @see https://github.com/redwoodjs/redwood/tree/main/packages/auth for examples
  */
-export const requireAuth = ({ roles }: { roles: AllowedRoles }) => {
+export const requireAuth = async ({ roles }: { roles: AllowedRoles }) => {
   if (!isAuthenticated()) {
     throw new AuthenticationError("You don't have permission to do that.")
   }
 
-  if (roles && !hasRole(roles)) {
+  if (roles && !(await hasRole(roles))) {
     throw new ForbiddenError("You don't have access to do that.")
   }
 }

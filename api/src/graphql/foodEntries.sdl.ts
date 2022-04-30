@@ -8,8 +8,10 @@ export const schema = gql`
   }
 
   type Query {
-    foodEntries: [FoodEntry!]! @requireAuth
-    foodEntry(id: Int!): FoodEntry @requireAuth
+    foodEntries(userId: Int!): [FoodEntry!]!
+      @requireAuth(roles: ["ADMIN", "USER"])
+    foodEntry(id: Int!, userId: Int!): FoodEntry
+      @requireAuth(roles: ["ADMIN", "USER"])
   }
 
   input CreateFoodEntryInput {
@@ -23,13 +25,14 @@ export const schema = gql`
     userId: Int
     name: String
     calories: Int
-    dateTaken: DateTime!
+    dateTaken: DateTime
   }
 
   type Mutation {
-    createFoodEntry(input: CreateFoodEntryInput!): FoodEntry! @requireAuth
+    createFoodEntry(input: CreateFoodEntryInput!): FoodEntry!
+      @requireAuth(roles: ["ADMIN", "USER"])
     updateFoodEntry(id: Int!, input: UpdateFoodEntryInput!): FoodEntry!
-      @requireAuth
-    deleteFoodEntry(id: Int!): FoodEntry! @requireAuth
+      @requireAuth(roles: ["ADMIN"])
+    deleteFoodEntry(id: Int!): FoodEntry! @requireAuth(roles: ["ADMIN"])
   }
 `

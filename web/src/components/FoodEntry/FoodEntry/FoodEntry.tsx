@@ -1,8 +1,8 @@
-import humanize from 'humanize-string'
-
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 import { Link, routes, navigate } from '@redwoodjs/router'
+import { RBAC_ROLE } from 'src/core.types'
+import { useAuth } from '@redwoodjs/auth'
 
 const DELETE_FOOD_ENTRY_MUTATION = gql`
   mutation DeleteFoodEntryMutation($id: Int!) {
@@ -11,25 +11,6 @@ const DELETE_FOOD_ENTRY_MUTATION = gql`
     }
   }
 `
-
-const formatEnum = (values: string | string[] | null | undefined) => {
-  if (values) {
-    if (Array.isArray(values)) {
-      const humanizedValues = values.map((value) => humanize(value))
-      return humanizedValues.join(', ')
-    } else {
-      return humanize(values as string)
-    }
-  }
-}
-
-const jsonDisplay = (obj) => {
-  return (
-    <pre>
-      <code>{JSON.stringify(obj, null, 2)}</code>
-    </pre>
-  )
-}
 
 const timeTag = (datetime) => {
   return (
@@ -41,11 +22,8 @@ const timeTag = (datetime) => {
   )
 }
 
-const checkboxInputTag = (checked) => {
-  return <input type="checkbox" checked={checked} disabled />
-}
-
 const FoodEntry = ({ foodEntry }) => {
+  const { hasRole } = useAuth()
   const [deleteFoodEntry] = useMutation(DELETE_FOOD_ENTRY_MUTATION, {
     onCompleted: () => {
       toast.success('FoodEntry deleted')
@@ -66,44 +44,52 @@ const FoodEntry = ({ foodEntry }) => {
     <>
       <div className="rw-segment">
         <header className="rw-segment-header">
-          <h2 className="rw-heading rw-heading-secondary">FoodEntry {foodEntry.id} Detail</h2>
+          <h2 className="rw-heading rw-heading-secondary">
+            FoodEntry {foodEntry.id} Detail
+          </h2>
         </header>
         <table className="rw-table">
           <tbody>
             <tr>
               <th>Id</th>
               <td>{foodEntry.id}</td>
-            </tr><tr>
+            </tr>
+            <tr>
               <th>User id</th>
               <td>{foodEntry.userId}</td>
-            </tr><tr>
+            </tr>
+            <tr>
               <th>Name</th>
               <td>{foodEntry.name}</td>
-            </tr><tr>
+            </tr>
+            <tr>
               <th>Calories</th>
               <td>{foodEntry.calories}</td>
-            </tr><tr>
+            </tr>
+            <tr>
               <th>Date taken</th>
               <td>{timeTag(foodEntry.dateTaken)}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <nav className="rw-button-group">
-        <Link
-          to={routes.editFoodEntry({ id: foodEntry.id })}
-          className="rw-button rw-button-blue"
-        >
-          Edit
-        </Link>
-        <button
-          type="button"
-          className="rw-button rw-button-red"
-          onClick={() => onDeleteClick(foodEntry.id)}
-        >
-          Delete
-        </button>
-      </nav>
+      {hasRole(RBAC_ROLE.ADMIN) && (
+        <nav className="rw-button-group">
+          <Link
+            to={routes.editFoodEntry({ id: foodEntry.id })}
+            className="rw-button rw-button-blue"
+          >
+            Edit
+          </Link>
+          <button
+            type="button"
+            className="rw-button rw-button-red"
+            onClick={() => onDeleteClick(foodEntry.id)}
+          >
+            Delete
+          </button>
+        </nav>
+      )}
     </>
   )
 }

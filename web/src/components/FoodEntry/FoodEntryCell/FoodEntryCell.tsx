@@ -4,8 +4,8 @@ import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 import FoodEntry from 'src/components/FoodEntry/FoodEntry'
 
 export const QUERY = gql`
-  query FindFoodEntryById($id: Int!) {
-    foodEntry: foodEntry(id: $id) {
+  query FindFoodEntryById($id: Int!, $userId: Int!) {
+    foodEntry: foodEntry(id: $id, userId: $userId) {
       id
       userId
       name
@@ -14,6 +14,13 @@ export const QUERY = gql`
     }
   }
 `
+
+export const beforeQuery = ({ userId, id }: any) => {
+  return {
+    variables: { userId, id },
+    fetchPolicy: 'cache-and-network',
+  }
+}
 
 export const Loading = () => <div>Loading...</div>
 

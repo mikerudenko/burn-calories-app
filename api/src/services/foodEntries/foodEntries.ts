@@ -1,15 +1,37 @@
 import type { Prisma } from '@prisma/client'
 
 import { db } from 'src/lib/db'
+import { getCurrentUser, requireAuth } from 'src/lib/auth'
+import { RBAC_ROLE } from 'src/core.types'
 
-export const foodEntries = () => {
-  return db.foodEntry.findMany()
+export const foodEntries = async ({ userId }) => {
+  requireAuth({ roles: [RBAC_ROLE.ADMIN, RBAC_ROLE.USER] })
+  const currentUser = await getCurrentUser(context.currentUser)
+  const currentUserRoles = currentUser?.roles
+
+  if (currentUserRoles === RBAC_ROLE.ADMIN || currentUser.id === userId) {
+    return db.foodEntry.findMany({
+      where: {
+        userId,
+      },
+    })
+  }
 }
 
-export const foodEntry = ({ id }: Prisma.FoodEntryWhereUniqueInput) => {
-  return db.foodEntry.findUnique({
-    where: { id },
-  })
+export const foodEntry = async ({
+  id,
+  userId,
+}: Prisma.FoodEntryWhereUniqueInput & { userId: number }) => {
+  requireAuth({ roles: [RBAC_ROLE.ADMIN, RBAC_ROLE.USER] })
+
+  const currentUser = await getCurrentUser(context.currentUser)
+  const currentUserRoles = currentUser?.roles
+
+  if (currentUserRoles === RBAC_ROLE.ADMIN || currentUser.id === userId) {
+    return db.foodEntry.findFirst({
+      where: { id, userId },
+    })
+  }
 }
 
 interface CreateFoodEntryArgs {
@@ -17,6 +39,7 @@ interface CreateFoodEntryArgs {
 }
 
 export const createFoodEntry = ({ input }: CreateFoodEntryArgs) => {
+  requireAuth({ roles: [RBAC_ROLE.ADMIN, RBAC_ROLE.USER] })
   return db.foodEntry.create({
     data: input,
   })
@@ -27,6 +50,7 @@ interface UpdateFoodEntryArgs extends Prisma.FoodEntryWhereUniqueInput {
 }
 
 export const updateFoodEntry = ({ id, input }: UpdateFoodEntryArgs) => {
+  requireAuth({ roles: RBAC_ROLE.ADMIN })
   return db.foodEntry.update({
     data: input,
     where: { id },
@@ -34,6 +58,7 @@ export const updateFoodEntry = ({ id, input }: UpdateFoodEntryArgs) => {
 }
 
 export const deleteFoodEntry = ({ id }: Prisma.FoodEntryWhereUniqueInput) => {
+  requireAuth({ roles: RBAC_ROLE.ADMIN })
   return db.foodEntry.delete({
     where: { id },
   })

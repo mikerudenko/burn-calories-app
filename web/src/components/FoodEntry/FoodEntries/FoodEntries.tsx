@@ -1,10 +1,9 @@
-import humanize from 'humanize-string'
-
+import { useAuth } from '@redwoodjs/auth'
+import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
-import { Link, routes } from '@redwoodjs/router'
-
 import { QUERY } from 'src/components/FoodEntry/FoodEntriesCell'
+import { RBAC_ROLE } from 'src/core.types'
 
 const DELETE_FOOD_ENTRY_MUTATION = gql`
   mutation DeleteFoodEntryMutation($id: Int!) {
@@ -16,27 +15,12 @@ const DELETE_FOOD_ENTRY_MUTATION = gql`
 
 const MAX_STRING_LENGTH = 150
 
-const formatEnum = (values: string | string[] | null | undefined) => {
-  if (values) {
-    if (Array.isArray(values)) {
-      const humanizedValues = values.map((value) => humanize(value))
-      return humanizedValues.join(', ')
-    } else {
-      return humanize(values as string)
-    }
-  }
-}
-
 const truncate = (text) => {
   let output = text
   if (text && text.length > MAX_STRING_LENGTH) {
     output = output.substring(0, MAX_STRING_LENGTH) + '...'
   }
   return output
-}
-
-const jsonTruncate = (obj) => {
-  return truncate(JSON.stringify(obj, null, 2))
 }
 
 const timeTag = (datetime) => {
@@ -49,11 +33,9 @@ const timeTag = (datetime) => {
   )
 }
 
-const checkboxInputTag = (checked) => {
-  return <input type="checkbox" checked={checked} disabled />
-}
-
 const FoodEntriesList = ({ foodEntries }) => {
+  const { hasRole, currentUser } = useAuth()
+
   const [deleteFoodEntry] = useMutation(DELETE_FOOD_ENTRY_MUTATION, {
     onCompleted: () => {
       toast.success('FoodEntry deleted')
@@ -64,7 +46,7 @@ const FoodEntriesList = ({ foodEntries }) => {
     // This refetches the query on the list page. Read more about other ways to
     // update the cache over here:
     // https://www.apollographql.com/docs/react/data/mutations/#making-all-other-cache-updates
-    refetchQueries: [{ query: QUERY }],
+    refetchQueries: [{ query: QUERY, variables: { userId: currentUser.id } }],
     awaitRefetchQueries: true,
   })
 
@@ -104,21 +86,26 @@ const FoodEntriesList = ({ foodEntries }) => {
                   >
                     Show
                   </Link>
-                  <Link
-                    to={routes.editFoodEntry({ id: foodEntry.id })}
-                    title={'Edit foodEntry ' + foodEntry.id}
-                    className="rw-button rw-button-small rw-button-blue"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    title={'Delete foodEntry ' + foodEntry.id}
-                    className="rw-button rw-button-small rw-button-red"
-                    onClick={() => onDeleteClick(foodEntry.id)}
-                  >
-                    Delete
-                  </button>
+
+                  {hasRole(RBAC_ROLE.ADMIN) && (
+                    <>
+                      <Link
+                        to={routes.editFoodEntry({ id: foodEntry.id })}
+                        title={'Edit foodEntry ' + foodEntry.id}
+                        className="rw-button rw-button-small rw-button-blue"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        title={'Delete foodEntry ' + foodEntry.id}
+                        className="rw-button rw-button-small rw-button-red"
+                        onClick={() => onDeleteClick(foodEntry.id)}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </nav>
               </td>
             </tr>

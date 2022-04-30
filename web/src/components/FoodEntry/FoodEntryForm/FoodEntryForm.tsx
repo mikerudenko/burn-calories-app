@@ -10,10 +10,17 @@ import { useState } from 'react'
 import { FoodAutocomplete } from 'src/components/FoodAutocomplete/FoodAutocomplete'
 
 const FoodEntryForm = (props) => {
-  const [foodItemValue, setFoodItemValue] = useState(null)
+  const initialSelectedFoodItem = {
+    value: props.foodEntry?.id,
+    label: props.foodEntry?.name,
+  }
+  const [foodItemValue, setFoodItemValue] = useState(initialSelectedFoodItem)
 
   const onSubmit = (data) => {
-    props.onSave(data, props?.foodEntry?.id)
+    props.onSave({
+      ...data,
+      name: foodItemValue.label,
+    })
   }
 
   return (
@@ -37,8 +44,10 @@ const FoodEntryForm = (props) => {
         </Label>
 
         <FoodAutocomplete
-          value={foodItemValue.value}
+          name="name"
+          value={foodItemValue}
           setInputValue={setFoodItemValue}
+          defaultOptions={[initialSelectedFoodItem]}
         />
 
         <Label

@@ -6,6 +6,11 @@ declare module '*.jpeg' {
 
 // @filename: global.d.ts
 declare module '*.png' {
-  const imgUrl: string
-  export default imgUrl
+  const pngimgUrl: string
+  export default pngimgUrl
+}
+
+declare module '*.module.css' {
+  const css: { [key: string]: string }
+  export default css
 }

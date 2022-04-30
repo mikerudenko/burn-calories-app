@@ -1,9 +1,14 @@
 import AsyncSelect from 'react-select/async'
 import { getFoodEntries } from 'src/api/nutritionix-api'
 
+type SelectOption = {
+  value: string
+  label: string
+}
+
 const loadOptions = (
   inputValue: string,
-  callback: (options: any[]) => void
+  callback: (options: SelectOption[]) => void
 ) => {
   getFoodEntries(inputValue).then((foodEntries) => {
     const options = foodEntries.map(({ food_name, nix_item_id }) => ({
@@ -16,26 +21,35 @@ const loadOptions = (
 }
 
 type FoodAutocompleteProps = {
-  value: string
-  setInputValue(value: string): void
+  value: SelectOption
+  defaultOptions: SelectOption[]
+  setInputValue(option: SelectOption): void
+  name: string
 }
 
 export const FoodAutocomplete = ({
   value,
   setInputValue,
+  name,
+  defaultOptions,
 }: FoodAutocompleteProps) => {
   const handleInputChange = (newValue: string) => {
     const finalValue = newValue.replace(/\W/g, '')
     return finalValue
   }
 
+  const onSelect = (option: SelectOption) => {
+    setInputValue(option)
+  }
+
   return (
     <AsyncSelect
+      name={name}
       value={value}
       cacheOptions
       loadOptions={loadOptions}
-      defaultOptions
-      onSelect={(option) => setInputValue(option.value)}
+      defaultOptions={defaultOptions}
+      onChange={onSelect}
       onInputChange={handleInputChange}
     />
   )
