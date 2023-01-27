@@ -1,4 +1,4 @@
-# README
+# Tracking product calories with this app to burn them🏅
 
 Welcome to [RedwoodJS](https://redwoodjs.com)!
 
